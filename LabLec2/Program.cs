@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define test
+using System;
 using System.IO;
 
 
@@ -30,15 +31,17 @@ namespace LabLec1
             Console.WriteLine("Введите путь до файла с коэффициентам." +
                 " Если файл лежит в каталоге с программой,\nукажите только название и расширение файла");
 
-
+#if !test
             string path = Console.ReadLine();
-
+#elif test
+            string path = "prim.txt";
+#endif
 
             try
             {
                 if (!File.Exists(path))
                 {
-                    throw new FileNotFoundException("Такого файла нет. Завершаю работу");
+                    throw new FileNotFoundException("Такого файла нет. Завершаю работу"); //Если убрать if то там выбросится все таки другое исключение
 
                 }
             }
@@ -49,6 +52,7 @@ namespace LabLec1
             }
             StreamReader sr = new StreamReader(path);
             double[] ans = new double[2];
+            bool doOut=false;
 
             try
             {
@@ -58,6 +62,10 @@ namespace LabLec1
                 int i = 0;
                 while (!sr.EndOfStream )
                 {
+                    if( i == 3 )
+                    {
+                        break;
+                    }
                     string A = sr.ReadLine();
                     if (!double.TryParse(A, out coef[i]))
                     {
@@ -65,21 +73,24 @@ namespace LabLec1
                     }
                     i++;
                 }
-                Console.WriteLine($"Ваше уравнение: {coef[0]}x^2+{coef[1]}x+{coef[2]}");
+                Console.WriteLine($"\n\n\nВаше уравнение: {coef[0]}x^2+{coef[1]}x+{coef[2]}");
                 double disc = Math.Pow(coef[1],2) - 4*coef[0]*coef[2];
                 if (disc < 0)
                 {
                     throw new DiscMinException($" Дискриминант оказался меньше нуля: {disc}");
                 }
-                else if (Math.Abs(disc - 0) < 0.0000001)
+
+                ans[0] = (-coef[1] + Math.Sqrt(disc)) / (2 * coef[1]);
+                ans[1] = (-coef[1] - Math.Sqrt(disc)) / (2 * coef[1]);
+
+                if (Math.Abs(disc - 0) < 0.0000001)
                 {
                     throw new DiscZeroException($"Дискриминант оказался равен 0");
                 }
-                ans[0] = (-coef[1] + Math.Sqrt(disc)) / (2 * coef[1]);
-                ans[1] = (-coef[1] - Math.Sqrt(disc)) / (2 * coef[1]);
-                Console.WriteLine("Ответы: ");
-                Console.WriteLine(ans[0]);
-                Console.WriteLine(ans[1]);
+                
+                //Console.WriteLine("Ответы: ");
+                //Console.WriteLine(ans[0]);
+                //Console.WriteLine(ans[1]);
 
 
             }
@@ -91,7 +102,15 @@ namespace LabLec1
             catch(DiscZeroException ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.WriteLine(ans[0]);
+                Console.WriteLine("Ответ: "+ans[0]);
+                doOut = true;
+                
+            }
+            catch(DiscMinException ex)
+            {
+                Console.WriteLine(ex.Message);
+                doOut = true;
+                return;
             }
             catch (Exception ex)
             {
@@ -99,7 +118,12 @@ namespace LabLec1
             }
             finally
             {
-                //Console.WriteLine(ans[0]);
+                if (!doOut)
+                {
+                    Console.WriteLine("Ответы: ");
+                    Console.WriteLine(ans[0]);
+                    Console.WriteLine(ans[1]);
+                }
                 sr.Close();
             }
 
