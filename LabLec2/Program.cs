@@ -32,7 +32,8 @@ namespace LabLec1
                 " Если файл лежит в каталоге с программой,\nукажите только название и расширение файла");
 
 #if !test
-            string path = Console.ReadLine();
+            //string path = Console.ReadLine() ?? throw new FileNotFoundException("Указан пустой путь");
+            string? path = Console.ReadLine();
 #elif test
             string path = "prim.txt";
 #endif
@@ -66,7 +67,7 @@ namespace LabLec1
                     {
                         break;
                     }
-                    string A = sr.ReadLine();
+                    string? A = sr.ReadLine();
                     if (!double.TryParse(A, out coef[i]))
                     {
                         throw new NumberException($" Коэффициент {A} не был распознан как число");
